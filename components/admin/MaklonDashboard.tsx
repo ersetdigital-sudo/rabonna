@@ -337,8 +337,14 @@ export default function MaklonDashboard({
               <span className="hidden lg:inline text-[12.5px] text-[var(--pas-muted)]">
                 {formatShortDateID(new Date())}
               </span>
-              <button onClick={() => setShowAdd(true)} className="pas-btn-accent px-3.5 py-2.5 text-[14px] sm:px-4">
-                <span className="sm:inline">+ </span>Maklon
+              <button
+                onClick={() => setShowAdd(true)}
+                aria-label="Tambah maklon"
+                className="pas-btn-accent whitespace-nowrap w-10 h-10 grid place-items-center text-[16px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:text-[14px]"
+              >
+                {/* Layar sempit cukup "+" supaya topbar tetap rapi. */}
+                <span className="sm:hidden">+</span>
+                <span className="hidden sm:inline">+ Maklon</span>
               </button>
             </div>
           </div>

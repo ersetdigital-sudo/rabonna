@@ -625,7 +625,7 @@ export default function PesananDashboard({
             </div>
             <div className="flex items-center gap-2">
               <button
-                className="lg:hidden p-2.5 rounded-lg border border-[var(--pas-line)] text-[var(--pas-muted)] hover:text-[var(--pas-ink-1)] hover:bg-[var(--pas-surface-2)] transition"
+                className="lg:hidden w-10 h-10 grid place-items-center rounded-lg border border-[var(--pas-line)] text-[var(--pas-muted)] hover:text-[var(--pas-ink-1)] hover:bg-[var(--pas-surface-2)] transition"
                 onClick={() => setShowMobileNav(true)}
                 aria-label="Buka menu"
               >
@@ -639,14 +639,18 @@ export default function PesananDashboard({
               {currentView === "pesanan" && (
                 <button
                   onClick={() => setShowAdd(true)}
-                  className="pas-btn-accent px-3.5 py-2.5 text-[14px] sm:px-4"
+                  aria-label="Tambah pesanan"
+                  className="pas-btn-accent whitespace-nowrap w-10 h-10 grid place-items-center text-[16px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:text-[14px]"
                 >
-                  <span className="sm:inline">+ </span>Pesanan
+                  {/* Layar sempit cukup "+": tombol teks penuh membuat baris
+                      topbar berdesakan dan label-nya terbelah dua baris. */}
+                  <span className="sm:hidden">+</span>
+                  <span className="hidden sm:inline">+ Pesanan</span>
                 </button>
               )}
               <button
                 onClick={handleLogout}
-                className="pas-btn-ghost px-3 py-2 text-[13px] text-[var(--pas-muted)]"
+                className="pas-btn-ghost whitespace-nowrap px-3 py-2.5 h-10 text-[13px] text-[var(--pas-muted)]"
               >
                 Keluar
               </button>
