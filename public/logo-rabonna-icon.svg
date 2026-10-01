@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Rabona">
+  <defs>
+    <linearGradient id="rbNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1C4B8F"/>
+      <stop offset="0.55" stop-color="#12305B"/>
+      <stop offset="1" stop-color="#0B1F3F"/>
+    </linearGradient>
+    <linearGradient id="rbGold" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#F2D06B"/>
+      <stop offset="0.45" stop-color="#E3B341"/>
+      <stop offset="1" stop-color="#C9971F"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" rx="58" fill="url(#rbNavy)"/>
+  <g transform="translate(128 130) scale(0.72) translate(-100 -100)">
+    <g fill="none" stroke="url(#rbGold)" stroke-width="34" stroke-linecap="butt" stroke-linejoin="miter">
+      <path d="M30 170 V30 H95 A45 45 0 0 1 95 120 H30"/>
+      <path d="M85 120 L152 172"/>
+    </g>
+  </g>
+</svg>
