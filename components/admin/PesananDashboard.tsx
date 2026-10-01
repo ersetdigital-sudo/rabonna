@@ -612,8 +612,10 @@ export default function PesananDashboard({
       <div className="flex-1 min-w-0">
         <header className="pas-topbar">
           <div className="px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
+            {/* Logo TIDAK dipasang di topbar mobile: di layar sempit ia
+                bertabrakan dengan breadcrumb + tombol. Branding cukup di
+                drawer (tombol menu) — lihat "Drawer header" di bawah. */}
             <div className="flex items-center gap-3 min-w-0">
-<img src="/logo-rabona-dark.png" alt="Rabona" className="h-7 w-auto object-contain lg:hidden" />
               <div className="min-w-0">
                 <p className="pas-kicker">{meta.crumb}</p>
                 <h1 className="pas-display pas-title mt-1 truncate">
