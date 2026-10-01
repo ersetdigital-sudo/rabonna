@@ -25,6 +25,7 @@ import {
   formatShortDateID,
 } from "@/lib/format-date";
 import { Search, AlertTriangle } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 type StepRow = { id: string; name: string; position: number };
 
@@ -138,6 +139,12 @@ function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
         <path d="M13.73 21a2 2 0 01-3.46 0" />
       </>
     ),
+    logout: (
+      <>
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+        <path d="M16 17l5-5-5-5M21 12H9" />
+      </>
+    ),
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -165,6 +172,7 @@ export default function MaklonDashboard({
   const [deleteTarget, setDeleteTarget] = useState<OrderData | null>(null);
   const [deletingOrder, setDeletingOrder] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [steps, setSteps] = useState<StepRow[]>(
@@ -265,6 +273,13 @@ export default function MaklonDashboard({
     selesai: orders.filter((o) => statusOf(o, steps.length) === "selesai").length,
   };
 
+  const handleLogout = async () => {
+    await fetch("/api/pesanan/auth", { method: "DELETE" });
+    // Maklon tidak memakai router Next (navigasinya pindah halaman penuh),
+    // jadi cukup arahkan ulang lewat location.
+    window.location.href = "/login";
+  };
+
   return (
     <div className="pas-shell">
       <aside className="pas-side">
@@ -334,17 +349,23 @@ export default function MaklonDashboard({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                className="lg:hidden w-10 h-10 grid place-items-center rounded-lg border border-[var(--pas-line)] text-[var(--pas-muted)] hover:text-[var(--pas-ink-1)] hover:bg-[var(--pas-surface-2)] transition"
+                onClick={() => setShowMobileNav(true)}
+                aria-label="Buka menu"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
               <span className="hidden lg:inline text-[12.5px] text-[var(--pas-muted)]">
                 {formatShortDateID(new Date())}
               </span>
               <button
                 onClick={() => setShowAdd(true)}
-                aria-label="Tambah maklon"
-                className="pas-btn-accent whitespace-nowrap w-10 h-10 grid place-items-center text-[16px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:text-[14px]"
+                className="pas-btn-accent whitespace-nowrap px-3.5 py-2.5 text-[14px] sm:px-4"
               >
-                {/* Layar sempit cukup "+" supaya topbar tetap rapi. */}
-                <span className="sm:hidden">+</span>
-                <span className="hidden sm:inline">+ Maklon</span>
+                + Maklon
               </button>
             </div>
           </div>
@@ -576,6 +597,60 @@ export default function MaklonDashboard({
           )}
         </main>
       </div>
+
+      {/* ── MOBILE NAV DRAWER ── */}
+      <Sheet open={showMobileNav} onOpenChange={setShowMobileNav}>
+        <SheetContent
+          side="left"
+          className="p-5 bg-[#0E1B31] text-white border-r border-white/10 w-[280px] [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:bg-white/10 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition"
+        >
+          <SheetTitle className="sr-only">Menu</SheetTitle>
+          {/* Drawer header — satu-satunya tempat logo tampil di mobile. */}
+          <div className="flex items-center mb-2">
+            <a href="/" className="flex items-center gap-2.5">
+              <img src="/logo-rabona.png" alt="Rabona" className="w-36 h-auto" />
+            </a>
+          </div>
+          <p className="pas-navsec">Operasional</p>
+          <nav className="flex flex-col gap-1" onClick={() => setShowMobileNav(false)}>
+            <Link className="pas-navlink" href="/pesanan/orders" prefetch>
+              <span className="pas-ic"><NavIcon name="pesanan" /></span> Pesanan
+            </Link>
+            <Link className="pas-navlink on" href="/pesanan/maklon" prefetch>
+              <span className="pas-ic"><NavIcon name="maklon" /></span> Maklon
+            </Link>
+            <Link className="pas-navlink" href="/pesanan/orders#jadwal" prefetch>
+              <span className="pas-ic"><NavIcon name="jadwal" /></span> Jadwal Produksi
+            </Link>
+            <Link className="pas-navlink" href="/pesanan/orders#kirim" prefetch>
+              <span className="pas-ic"><NavIcon name="kirim" /></span> Pengiriman
+            </Link>
+          </nav>
+          <p className="pas-navsec">Data</p>
+          <nav className="flex flex-col gap-1" onClick={() => setShowMobileNav(false)}>
+            <Link className="pas-navlink" href="/pesanan/orders#customer" prefetch>
+              <span className="pas-ic"><NavIcon name="customer" /></span> Customer
+            </Link>
+            <Link className="pas-navlink" href="/pesanan/orders#laporan" prefetch>
+              <span className="pas-ic"><NavIcon name="laporan" /></span> Laporan
+            </Link>
+            <Link className="pas-navlink" href="/pesanan/orders#notif" prefetch>
+              <span className="pas-ic"><NavIcon name="notif" /></span> Notifikasi
+            </Link>
+            <Link className="pas-navlink" href="/pesanan/orders#setting" prefetch>
+              <span className="pas-ic"><NavIcon name="setting" /></span> Pengaturan
+            </Link>
+          </nav>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="pas-navlink mt-5 w-full text-left"
+          >
+            <span className="pas-ic"><NavIcon name="logout" /></span> Keluar
+          </button>
+        </SheetContent>
+      </Sheet>
 
       {openId && (
         <DetailSheet

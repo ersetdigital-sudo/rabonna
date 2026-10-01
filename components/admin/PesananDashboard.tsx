@@ -418,6 +418,12 @@ function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
         <path d="M13.73 21a2 2 0 01-3.46 0" />
       </>
     ),
+    logout: (
+      <>
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+        <path d="M16 17l5-5-5-5M21 12H9" />
+      </>
+    ),
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -639,21 +645,11 @@ export default function PesananDashboard({
               {currentView === "pesanan" && (
                 <button
                   onClick={() => setShowAdd(true)}
-                  aria-label="Tambah pesanan"
-                  className="pas-btn-accent whitespace-nowrap w-10 h-10 grid place-items-center text-[16px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:text-[14px]"
+                  className="pas-btn-accent whitespace-nowrap px-3.5 py-2.5 text-[14px] sm:px-4"
                 >
-                  {/* Layar sempit cukup "+": tombol teks penuh membuat baris
-                      topbar berdesakan dan label-nya terbelah dua baris. */}
-                  <span className="sm:hidden">+</span>
-                  <span className="hidden sm:inline">+ Pesanan</span>
+                  + Pesanan
                 </button>
               )}
-              <button
-                onClick={handleLogout}
-                className="pas-btn-ghost whitespace-nowrap px-3 py-2.5 h-10 text-[13px] text-[var(--pas-muted)]"
-              >
-                Keluar
-              </button>
             </div>
           </div>
         </header>
@@ -750,6 +746,16 @@ export default function PesananDashboard({
               </a>
             ))}
           </nav>
+
+          {/* Logout pindah ke drawer: di topbar mobile tombol ini membuat baris
+              berdesakan. Karena itu tombol tambah bisa pakai teks penuh lagi. */}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="pas-navlink mt-5 w-full text-left"
+          >
+            <span className="pas-ic"><NavIcon name="logout" /></span> Keluar
+          </button>
         </SheetContent>
       </Sheet>
 
