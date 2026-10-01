@@ -43,7 +43,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description: brand.description,
     },
     twitter: {
-      card: "summary_large_image",
+      // "summary" (bukan large_image): halaman ini tidak punya og:image, dan
+      // meminta kartu besar bikin sebagian klien menampilkan kotak kosong.
+      card: "summary",
       title: `${brand.name} — ${taglineFirstLine}`,
       description: brand.description,
     },
