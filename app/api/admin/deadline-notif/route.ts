@@ -14,16 +14,21 @@ export const maxDuration = 60;
 const CRON_SECRET = process.env.CRON_SECRET || "";
 
 /**
- * Ambil secret cron dari request. Dua bentuk diterima:
+ * Ambil secret cron dari request. Tiga bentuk diterima:
  *
- *  - `Authorization: Bearer <CRON_SECRET>` — inilah yang dikirim Vercel Cron
- *    secara otomatis begitu env `CRON_SECRET` di-set. Tanpa menerima header
- *    ini, cron Vercel selalu ditolak 401 dan notifikasi tidak pernah jalan.
- *  - `x-cron-secret` atau `?secret=` — untuk pemanggilan manual: curl, GitHub
- *    Actions, atau cron eksternal lain.
+ *  - `?secret=` — yang dipakai penjadwal eksternal (cron-job.org). Paling
+ *    mudah dipasang, tapi nilainya ikut tercatat di log akses; pakai header
+ *    di bawah kalau mau lebih rapi.
+ *  - `x-cron-secret` — untuk penjadwal eksternal juga, lewat custom header.
+ *  - `Authorization: Bearer <CRON_SECRET>` — bentuk standar Authorization.
  *
- * Dulu hanya bentuk kedua yang diterima, jadi jadwal cron otomatis tidak akan
- * pernah lolos autentikasi.
+ * Penjadwalnya SENGAJA dari luar, bukan cron bawaan Vercel: jam kirimnya
+ * diatur operator di menu admin (tabel app_settings), dan penjadwal cuma
+ * mengetuk pintu secara berkala. Route ini sendiri yang memutuskan apakah
+ * sudah waktunya kirim — lihat gerbang `currentMinutes < targetMinutes` di
+ * bawah. Karena itu penjadwalnya sebaiknya dipanggil lebih sering daripada
+ * sekali sehari (mis. tiap 15 menit), supaya jam yang diatur di menu admin
+ * benar-benar diikuti, bukan tertahan menunggu jadwal harian yang tetap.
  */
 function readCronSecret(req: Request, url: URL): string | null {
   const authHeader = req.headers.get("authorization");
