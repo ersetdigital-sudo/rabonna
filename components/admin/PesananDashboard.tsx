@@ -540,13 +540,11 @@ export default function PesananDashboard({
       {/* â”€â”€ SIDEBAR â”€â”€ */}
       <aside className="pas-side">
         <a href="/" className="pas-brand">
-          <span className="pas-brand-mark">
-            <img src="/logo-rabona-mark.png" alt="Rabona" />
-          </span>
-          <span className="block text-center">
-            <span className="pas-brand-name">Rabona</span>
-            <span className="pas-brand-sub">Admin Panel</span>
-          </span>
+          {/* Logo UTUH apa adanya dari brand (emblem + wordmark + tagline) —
+              sengaja tidak dipotong supaya proporsinya tetap asli. Nama
+              "Rabona" sudah ada di dalam logo, jadi tidak diulang sebagai teks. */}
+          <img src="/logo-rabona.png" alt="Rabona" className="pas-brand-logo" />
+          <span className="pas-brand-sub">Admin Panel</span>
         </a>
         <p className="pas-navsec">Operasional</p>
         <nav className="flex flex-col gap-1">
@@ -615,7 +613,7 @@ export default function PesananDashboard({
         <header className="pas-topbar">
           <div className="px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-<img src="/logo-rabona-mark-dark.png" alt="Rabona" className="w-10 h-10 object-contain lg:hidden" />
+<img src="/logo-rabona-dark.png" alt="Rabona" className="h-7 w-auto object-contain lg:hidden" />
               <div className="min-w-0">
                 <p className="pas-kicker">{meta.crumb}</p>
                 <h1 className="pas-display pas-title mt-1 truncate">
@@ -698,8 +696,7 @@ export default function PesananDashboard({
           {/* Drawer header */}
           <div className="flex items-center mb-2">
             <a href="/" className="flex items-center gap-2.5">
-              <img src="/logo-rabona-mark.png" alt="Rabona" className="w-9 h-9 object-contain" />
-              <span className="pas-brand-name !text-[16px]">Rabona</span>
+              <img src="/logo-rabona.png" alt="Rabona" className="w-36 h-auto" />
             </a>
           </div>
           <p className="pas-navsec">Operasional</p>

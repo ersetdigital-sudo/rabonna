@@ -2580,6 +2580,13 @@ table.pas-tbl tbody tr:hover { background: #F7FAFF; }
   width: 100%; height: 100%; object-fit: contain; display: block;
   filter: drop-shadow(0 8px 22px rgba(201,151,31,.45));
 }
+/* Logo sidebar memakai berkas UTUH (emblem + wordmark + tagline) apa adanya.
+   Lebarnya dipatok dan tingginya ikut proporsi asli — TIDAK dipotong, supaya
+   tampilannya sama persis seperti berkas dari brand. */
+.pas-brand-logo {
+  width: 178px; max-width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 8px 22px rgba(201,151,31,.3));
+}
 .pas-brand-name {
   display: block; color: #fff; font-size: 19px; font-weight: 700;
   line-height: 1.2; letter-spacing: .3px;

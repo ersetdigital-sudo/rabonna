@@ -17,14 +17,9 @@ export default function AdminSkeleton() {
     <div className="pas-shell" aria-busy="true" aria-live="polite">
       <aside className="pas-side">
         <span className="pas-brand">
-          <span className="pas-brand-mark">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-rabona-mark.png" alt="" aria-hidden="true" />
-          </span>
-          <span className="block text-center">
-            <span className="pas-brand-name">Rabona</span>
-            <span className="pas-brand-sub">Admin Panel</span>
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-rabona.png" alt="" aria-hidden="true" className="pas-brand-logo" />
+          <span className="pas-brand-sub">Admin Panel</span>
         </span>
 
         <p className="pas-navsec">Operasional</p>
