@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
   const title = orderNumber
     ? `Status Pesanan ${orderNumber}`
-    : `Status Pesanan ${brand.name}`;
+    : brand.name;
   const description = `Pantau progres produksi pesanan jersey custom ${brand.name}.`;
 
   const html = `<!doctype html>

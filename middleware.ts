@@ -63,31 +63,26 @@ function isLinkPreviewCrawler(request: NextRequest): boolean {
   return !/mozilla/i.test(userAgent);
 }
 
-/**
- * Halaman yang link-nya dikirim ke customer lewat WhatsApp, dan karenanya
- * preview-nya ikut dibentuk oleh crawler di aplikasi chat.
- */
-function isCustomerSharedPage(pathname: string): boolean {
-  return (
-    pathname === "/status" ||
-    pathname.startsWith("/status/") ||
-    pathname === "/track" ||
-    pathname.startsWith("/track/")
-  );
-}
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Crawler preview dapat dokumen TANPA GAMBAR SAMA SEKALI (app/link-preview),
-  // supaya chat customer tidak lagi menampilkan logo raksasa.
+  // Crawler preview SELALU dapat dokumen TANPA GAMBAR SAMA SEKALI
+  // (app/link-preview), untuk SEMUA rute yang cocok — bukan cuma /status dan
+  // /track.
+  //
+  // Kenapa seluas itu: preview WhatsApp tidak hanya muncul untuk link yang
+  // dikirim ke customer. Notifikasi deadline ke admin juga berisi link
+  // (`…/pesanan/orders`), dan crawler WhatsApp mengikutinya sampai halaman
+  // login — yang memasang logo. Logo itu pula yang muncul di chat admin.
+  // Halaman mana pun bisa jadi tujuan redirect (mis. /pesanan/* → /login), jadi
+  // menyaring per halaman selalu ada yang bocor. Memberi crawler dokumen yang
+  // memang tidak punya gambar apa pun menutup semua jalur itu sekaligus.
   //
   // Halaman /status tidak punya og:image, dan WhatsApp memang dirancang
   // "mencari markah lain" saat og:image kosong — jadi ia mengambil ikon situs
   // dan memperbesarnya jadi thumbnail. Menghapus ikon satu per satu tidak
-  // menyelesaikan masalah: WhatsApp jatuh ke markah berikutnya. Memberi crawler
-  // halaman yang memang tidak punya gambar apa pun menutup semua celah itu.
-  if (isCustomerSharedPage(pathname) && isLinkPreviewCrawler(request)) {
+  // menyelesaikan masalah: WhatsApp jatuh ke markah berikutnya.
+  if (isLinkPreviewCrawler(request)) {
     // User-Agent sengaja dicatat: kalau preview di WhatsApp masih salah, baris
     // ini di Vercel Logs menunjukkan crawler mana yang datang dan apa yang
     // dimintanya, tanpa perlu menebak lagi.
@@ -119,5 +114,11 @@ export const config = {
    * Sengaja BUKAN seluruh situs: middleware berjalan sebelum setiap request,
    * dan endpoint API serta aset statis tidak butuh keduanya.
    */
-  matcher: ["/pesanan/:path*", "/status/:path*", "/track/:path*"],
+  matcher: [
+    "/",
+    "/login",
+    "/pesanan/:path*",
+    "/status/:path*",
+    "/track/:path*",
+  ],
 };
