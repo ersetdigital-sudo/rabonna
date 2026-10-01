@@ -97,7 +97,7 @@ export default function TrackForm({
             <a href="/" className="flex items-center gap-3">
 {/* Mark saja (tanpa wordmark), karena teks Rabona sudah ada di sampingnya */}
                 <img
-                  src="/logo-rabonna-mark.png"
+                  src="/logo-rabona-mark.png"
                   alt=""
                   aria-hidden="true"
                   className="h-10 w-auto"

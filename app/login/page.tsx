@@ -46,7 +46,7 @@ export default function LoginPage() {
               gelap, karena kartu login berlatar terang. Nama Rabona sudah ada
               di dalam logo, jadi tidak diulang sebagai teks. */}
           <img
-            src="/logo-rabonna-dark.png"
+            src="/logo-rabona-dark.png"
             alt="Rabona"
             className="w-56 max-w-full h-auto object-contain"
             style={{ filter: "drop-shadow(0 6px 16px rgba(18,48,91,.18))" }}

@@ -1,0 +1,13 @@
+-- Perbarui path logo brand ke nama berkas yang baru.
+--
+-- Berkas logo diganti namanya dari `logo-rabonna*.png` menjadi `logo-rabona*.png`.
+-- Alasannya bukan sekadar kerapian penulisan: semua aset di /public disajikan
+-- dengan header `Cache-Control: public, max-age=31536000, immutable` (lihat
+-- next.config.mjs), jadi memakai nama berkas yang sama membuat browser yang
+-- sudah pernah membuka situs terus menampilkan logo LAMA hingga setahun.
+-- Mengganti nama berkas memaksa semua browser mengambil logo baru.
+--
+-- Kolom `brand.logo_path` sendiri saat ini tidak dirender di halaman mana pun
+-- (header memakai berkas versi kecil di /public), tapi tetap dirapikan supaya
+-- nilainya konsisten kalau nanti dipakai.
+update brand set logo_path = '/logo-rabona.png' where id = 1;

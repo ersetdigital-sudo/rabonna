@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getAdminDb } from "@/lib/admin-auth";
-import { getAppUrl } from "@/lib/app-url";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendFonnteMessage, normalizeAndValidatePhone } from "@/lib/fonnte";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
@@ -295,7 +294,6 @@ Sisa: ${order.diffDays === 0 ? "Hari ini" : order.diffDays + " hari lagi"}
 
 Segera tindak lanjuti.
 
-Link: ${getAppUrl()}/pesanan/orders
 ---
 Pesan ini dikirim otomatis oleh sistem.`;
 

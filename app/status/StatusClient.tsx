@@ -549,7 +549,7 @@ export default function StatusClient({
 >
   {/* Mark saja (tanpa wordmark), karena teks Rabona sudah ada di sampingnya */}
   <img
-    src="/logo-rabonna-mark.png"
+    src="/logo-rabona-mark.png"
     alt=""
     aria-hidden="true"
     className="h-8 w-auto"

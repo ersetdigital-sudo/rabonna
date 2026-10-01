@@ -137,7 +137,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {/* Mark saja (tanpa wordmark), karena teks Rabona ada di sampingnya */}
                   <img
-                    src="/logo-rabonna-mark.png"
+                    src="/logo-rabona-mark.png"
                     alt=""
                     aria-hidden="true"
                     className="h-8 w-auto"

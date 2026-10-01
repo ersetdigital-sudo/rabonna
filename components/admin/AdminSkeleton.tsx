@@ -19,7 +19,7 @@ export default function AdminSkeleton() {
         <span className="pas-brand">
           <span className="pas-brand-mark">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-rabonna-mark.png" alt="" aria-hidden="true" />
+            <img src="/logo-rabona-mark.png" alt="" aria-hidden="true" />
           </span>
           <span className="block text-center">
             <span className="pas-brand-name">Rabona</span>

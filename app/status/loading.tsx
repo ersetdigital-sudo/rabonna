@@ -16,7 +16,7 @@ export default function StatusLoading() {
             <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-3.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-rabonna-mark.png"
+                src="/logo-rabona-mark.png"
                 alt=""
                 aria-hidden="true"
                 className="h-8 w-auto shrink-0"

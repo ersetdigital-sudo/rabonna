@@ -31,6 +31,12 @@ export const FONNTE_TIMEOUT_MS = 10_000;
  * URL tracking publik (encode nomor pesanan bila ada karakter spesial).
  * Token opsional (HMAC 30 hari) membuat customer bisa langsung lihat
  * progres TANPA verifikasi HP — lihat app/status/page.tsx.
+ *
+ * Catatan: URL ini TIDAK lagi disisipkan ke pesan WhatsApp. WhatsApp membentuk
+ * preview (judul + thumbnail) dari setiap URL di dalam pesan, dan thumbnail
+ * itulah yang dulu menampilkan logo besar. Pesan WA sekarang teks murni tanpa
+ * URL — lihat buildWhatsAppMessage. Fungsi ini disimpan untuk dipakai ulang
+ * kalau link mau dikirim lewat kanal lain (mis. email).
  */
 export function buildTrackingUrl(orderNumber: string, token?: string): string {
   const base = `${getAppUrl()}/status?order=${encodeURIComponent(orderNumber)}`;
@@ -52,16 +58,19 @@ export function buildMaklonTrackingUrl(orderNumber: string, token?: string): str
  * - Tahap 1-10: template umum "UPDATE PESANAN".
  * - Tahap 11: template khusus "PESANAN DIKIRIM".
  * Tanpa emoji, bahasa Indonesia natural, hanya tahap aktif (tanpa daftar 11 tahap).
+ *
+ * PENTING: pesan ini SENGAJA TIDAK memuat URL apa pun. WhatsApp membentuk
+ * preview dari tiap URL di dalam pesan, dan preview itulah yang menampilkan
+ * logo. Pesan teks murni = tidak ada preview yang bisa muncul.
  */
 export function buildWhatsAppMessage(
   stage: number,
   order: { customer_name: string; order_number: string },
-  token?: string,
+  _token?: string,
   stepOrder?: StepOrder
 ): string {
   const customerName = order.customer_name;
   const orderNumber = order.order_number;
-  const trackingUrl = buildTrackingUrl(orderNumber, token);
 
   if (stage === 11) {
     return [
@@ -69,9 +78,6 @@ export function buildWhatsAppMessage(
       `Halo Kak ${customerName},`,
       "",
       `Pesanan #${orderNumber} sudah selesai diproduksi dan sudah masuk tahap pengiriman.`,
-      "",
-      "Cek detail pesanan dan informasi pengiriman di:",
-      trackingUrl,
       "",
       "Terima kasih sudah mempercayakan pesanan Kakak kepada Rabona.",
     ].join("\n");
@@ -88,9 +94,6 @@ export function buildWhatsAppMessage(
       "",
       `Progress: ${stage}/11 tahap`,
       "",
-      "Cek progres lengkap pesanan Kakak di:",
-      trackingUrl,
-      "",
       "Kami akan mengirimkan update kembali saat pesanan masuk ke tahap berikutnya.",
       "",
       "Terima kasih sudah mempercayakan pesanan Kakak kepada Rabona.",
@@ -100,15 +103,17 @@ export function buildWhatsAppMessage(
 /**
  * Template WhatsApp untuk update tahap Maklon (1-6).
  * Tahap 6 (Kirim) memakai template khusus; lainnya template umum.
+ *
+ * Sama seperti buildWhatsAppMessage: teks murni TANPA URL, supaya WhatsApp
+ * tidak membuat preview (dan logo) di chat customer.
  */
 export function buildMaklonWhatsAppMessage(
   stage: number,
   order: { customer_name: string; order_number: string },
-  token?: string
+  _token?: string
 ): string {
   const customerName = order.customer_name;
   const orderNumber = order.order_number;
-  const trackingUrl = buildMaklonTrackingUrl(orderNumber, token);
 
   if (stage === 6) {
     return [
@@ -116,9 +121,6 @@ export function buildMaklonWhatsAppMessage(
       `Halo Kak ${customerName},`,
       "",
       `Pesanan maklon #${orderNumber} sudah selesai diproduksi dan masuk tahap pengiriman.`,
-      "",
-      "Cek detail pesanan di:",
-      trackingUrl,
       "",
       "Terima kasih sudah mempercayakan pesanan Kakak kepada Rabona.",
     ].join("\n");
@@ -134,9 +136,6 @@ export function buildMaklonWhatsAppMessage(
     `*${stageName}*`,
     "",
     `Progress: ${stage}/6 tahap`,
-    "",
-    "Cek progres lengkap di:",
-    trackingUrl,
     "",
     "Kami akan mengirimkan update kembali saat pesanan masuk ke tahap berikutnya.",
     "",
