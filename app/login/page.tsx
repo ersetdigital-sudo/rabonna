@@ -42,18 +42,18 @@ export default function LoginPage() {
     >
       <div className="pas-card p-8 w-full max-w-sm">
         <div className="flex flex-col items-center text-center gap-3 mb-7">
+          {/* Lockup lengkap (emblem + wordmark + tagline) — warna navy versi
+              gelap, karena kartu login berlatar terang. Nama Rabona sudah ada
+              di dalam logo, jadi tidak diulang sebagai teks. */}
           <img
-            src="/logo-rabonna.png"
+            src="/logo-rabonna-dark.png"
             alt="Rabona"
-            className="w-24 h-24 object-contain"
-            style={{ filter: "drop-shadow(0 8px 22px rgba(201,151,31,.35))" }}
+            className="w-56 max-w-full h-auto object-contain"
+            style={{ filter: "drop-shadow(0 6px 16px rgba(18,48,91,.18))" }}
           />
-          <div>
-            <span className="block pas-display text-[17px]">Rabona</span>
-            <span className="block text-[11px] tracking-[1.4px] uppercase text-[var(--pas-muted)] mt-1">
-              Panel Pesanan
-            </span>
-          </div>
+          <span className="block text-[11px] tracking-[1.4px] uppercase text-[var(--pas-muted)]">
+            Panel Pesanan
+          </span>
         </div>
 
         <h1 className="pas-display text-[26px] mb-2">
