@@ -609,7 +609,7 @@ export default function MaklonDashboard({
       <Sheet open={showMobileNav} onOpenChange={setShowMobileNav}>
         <SheetContent
           side="left"
-          className="p-5 bg-[#0E1B31] text-white border-r border-white/10 w-[280px] [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:bg-white/10 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition"
+          className="p-5 bg-[#0E1B31] text-white border-r border-white/10 w-[280px] overflow-y-auto [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:bg-white/10 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition"
         >
           <SheetTitle className="sr-only">Menu</SheetTitle>
           {/* Drawer header — satu-satunya tempat logo tampil di mobile. */}

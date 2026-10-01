@@ -694,7 +694,7 @@ export default function PesananDashboard({
 
       {/* â”€â”€ MOBILE NAV DRAWER â”€â”€ */}
       <Sheet open={showMobileNav} onOpenChange={setShowMobileNav}>
-        <SheetContent side="left" className="p-5 bg-[#0E1B31] text-white border-r border-white/10 w-[280px] [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:bg-white/10 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition">
+        <SheetContent side="left" className="p-5 bg-[#0E1B31] text-white border-r border-white/10 w-[280px] overflow-y-auto [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:bg-white/10 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition">
           {/* Drawer header */}
           <div className="flex items-center mb-2">
             <a href="/" className="flex items-center gap-2.5">
@@ -2596,7 +2596,9 @@ function ViewSetting({
     () => steps.map((s) => ({ name: s.name, position: s.position }))
   );
   const [savingSteps, setSavingSteps] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  // Tombol hapus tahap sengaja tidak ada: jumlah tahap dikunci supaya riwayat
+  // pesanan & notifikasi WhatsApp tetap menemukan tahapnya. Konfirmasi hapus
+  // yang dulu menemaninya ikut dibuang.
 
   // Token Fonnte (notifikasi WhatsApp) - token penuh tidak pernah dirender/dikirim ke client
   const [fonnteToken, setFonnteToken] = useState("");
@@ -2814,14 +2816,6 @@ function ViewSetting({
   }, [steps]);
 
 
-  const confirmRemoveStep = () => {
-    if (confirmDelete === null) return;
-    const updated = editSteps.filter((_, i) => i !== confirmDelete);
-    updated.forEach((s, i) => (s.position = i + 1));
-    setEditSteps(updated);
-    setConfirmDelete(null);
-  };
-
   const updateName = (idx: number, name: string) => {
     const updated = [...editSteps];
     updated[idx] = { ...updated[idx], name };
@@ -2881,7 +2875,7 @@ function ViewSetting({
           <label className="block mt-4">
             <span className="text-[13px] text-[var(--pas-muted)]">Nama Toko</span>
             <input
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
               value={tokoName}
               onChange={(e) => setTokoName(e.target.value)}
             />
@@ -2889,7 +2883,7 @@ function ViewSetting({
           <label className="block mt-3">
             <span className="text-[13px] text-[var(--pas-muted)]">WhatsApp Admin</span>
             <input
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px] pas-num"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px] pas-num"
               placeholder="6281234567890"
               value={tokoWhatsapp}
               onChange={(e) => setTokoWhatsapp(e.target.value)}
@@ -2898,7 +2892,7 @@ function ViewSetting({
           <label className="block mt-3">
             <span className="text-[13px] text-[var(--pas-muted)]">Jam Operasional</span>
             <input
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
               value={tokoJamOps}
               onChange={(e) => setTokoJamOps(e.target.value)}
             />
@@ -2935,7 +2929,7 @@ function ViewSetting({
             <div>
               <p className="font-semibold text-[15px]">Tahap Produksi</p>
               <p className="text-[12.5px] text-[var(--pas-muted)] mt-1">
-                {editSteps.length} tahap - pakai tombol ^v untuk ubah urutan. Nama tahap dikunci.
+                {editSteps.length} tahap - pakai tombol panah untuk ubah urutan. Nama dan jumlah tahap dikunci.
               </p>
             </div>
           </div>
@@ -2962,31 +2956,24 @@ function ViewSetting({
                   title="Nama tahap dikunci. Hubungi support untuk mengubahnya."
                   placeholder="Nama tahap..."
                 />
-                <div className="flex items-center gap-0.5 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
                   <button
-                    className="pas-btn-ghost w-9 h-9 grid place-items-center text-[14px] disabled:opacity-30"
+                    className="pas-btn-ghost w-10 h-10 grid place-items-center disabled:opacity-30"
                     disabled={i === 0}
                     onClick={() => moveStep(i, -1)}
                     title="Geser ke atas"
-                    aria-label="Geser tahap ke atas"
+                    aria-label={`Geser tahap ${s.name} ke atas`}
                   >
-                    ^
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15l6-6 6 6" /></svg>
                   </button>
                   <button
-                    className="pas-btn-ghost w-9 h-9 grid place-items-center text-[14px] disabled:opacity-30"
+                    className="pas-btn-ghost w-10 h-10 grid place-items-center disabled:opacity-30"
                     disabled={i === editSteps.length - 1}
                     onClick={() => moveStep(i, 1)}
                     title="Geser ke bawah"
-                    aria-label="Geser tahap ke bawah"
+                    aria-label={`Geser tahap ${s.name} ke bawah`}
                   >
-                    v
-                  </button>
-                  <button
-                    className="pas-btn-ghost w-9 h-9 grid place-items-center text-[14px] disabled:opacity-30"
-                    disabled
-                    title="Jumlah tahap dikunci. Hubungi support untuk mengubahnya."
-                  >
-                    ×
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
                   </button>
                 </div>
               </div>
@@ -3036,7 +3023,7 @@ function ViewSetting({
               <input
                 type="password"
                 autoComplete="off"
-                className="pas-field flex-1 min-w-0 px-4 py-2.5 text-[14px]"
+                className="pas-field flex-1 min-w-0 px-4 py-2.5 text-[16px]"
                 placeholder={
                   fonnteHasToken && fonnteLast4
                     ? `------------${fonnteLast4} (isi untuk mengganti)`
@@ -3060,7 +3047,7 @@ function ViewSetting({
             <div className="flex gap-2 mt-1.5">
               <input
                 type="tel"
-                className="pas-field flex-1 min-w-0 px-4 py-2.5 text-[14px] pas-num"
+                className="pas-field flex-1 min-w-0 px-4 py-2.5 text-[16px] pas-num"
                 placeholder="No. HP admin (0812... atau 62812...)"
                 value={fonnteTarget}
                 onChange={(e) => setFonnteTarget(e.target.value)}
@@ -3082,14 +3069,14 @@ function ViewSetting({
 
       {/* Notifikasi Deadline */}
       <div className="pas-card p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <p className="font-semibold text-[15px]">Notifikasi Deadline</p>
             <p className="text-[12.5px] text-[var(--pas-muted)] mt-1">
               Kirim peringatan ke admin via WhatsApp setiap hari jika order mendekati deadline.
             </p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+          <label className="relative inline-flex items-center cursor-pointer shrink-0 self-end sm:self-auto">
             <input
               type="checkbox"
               className="sr-only peer"
@@ -3105,7 +3092,7 @@ function ViewSetting({
             <span className="text-[13px] text-[var(--pas-muted)]">Jam Kirim (WIB)</span>
             <input
               type="time"
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
               value={deadlineTime}
               onChange={(e) => setDeadlineTime(e.target.value)}
             />
@@ -3114,7 +3101,7 @@ function ViewSetting({
             <span className="text-[13px] text-[var(--pas-muted)]">Hari Peringatan</span>
             <input
               type="text"
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
               placeholder="3,2,1"
               value={deadlineDays}
               onChange={(e) => setDeadlineDays(e.target.value)}
@@ -3128,21 +3115,21 @@ function ViewSetting({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1.5">
               <input
                 type="text"
-                className="pas-field w-full px-4 py-2.5 text-[15px] pas-num"
+                className="pas-field w-full px-4 py-2.5 text-[16px] pas-num"
                 placeholder="6281234567890"
                 value={deadlinePhone1}
                 onChange={(e) => setDeadlinePhone1(e.target.value)}
               />
               <input
                 type="text"
-                className="pas-field w-full px-4 py-2.5 text-[15px] pas-num"
+                className="pas-field w-full px-4 py-2.5 text-[16px] pas-num"
                 placeholder="6280987654321"
                 value={deadlinePhone2}
                 onChange={(e) => setDeadlinePhone2(e.target.value)}
               />
               <input
                 type="text"
-                className="pas-field w-full px-4 py-2.5 text-[15px] pas-num"
+                className="pas-field w-full px-4 py-2.5 text-[16px] pas-num"
                 placeholder="628111222333"
                 value={deadlinePhone3}
                 onChange={(e) => setDeadlinePhone3(e.target.value)}
@@ -3192,7 +3179,7 @@ function ViewSetting({
               type="number"
               min={1}
               step={50}
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px] pas-num"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px] pas-num"
               value={capacity}
               onChange={(e) => setCapacity(e.target.value)}
             />
@@ -3211,32 +3198,6 @@ function ViewSetting({
         </div>
       </div>
 
-      {/* Delete confirmation modal */}
-      {confirmDelete !== null && (
-        <div className="pas-sheet open">
-          <div className="pas-veil" onClick={() => setConfirmDelete(null)} />
-          <div className="pas-panel p-5" style={{ maxWidth: 380, margin: "auto" }}>
-            <p className="font-semibold text-[15px]">Hapus Tahap?</p>
-            <p className="text-[13px] text-[var(--pas-muted)] mt-2">
-              Tahap <strong>"{editSteps[confirmDelete]?.name}"</strong> akan dihapus. Pesanan yang sedang berada di tahap ini akan kehilangan referensi tahap.
-            </p>
-            <div className="flex gap-3 mt-5">
-              <button
-                className="pas-btn-ghost flex-1 py-2.5 text-[13px]"
-                onClick={() => setConfirmDelete(null)}
-              >
-                Batal
-              </button>
-              <button
-                className="flex-1 py-2.5 text-[13px] font-semibold rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors"
-                onClick={confirmRemoveStep}
-              >
-                Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
@@ -4444,7 +4405,7 @@ function EditSheet({
             <span className="text-[13px] text-[var(--pas-muted)]">Nama Customer</span>
             <input
               required
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
               placeholder="Nama"
               value={form.customer_name}
               onChange={set("customer_name")}
@@ -4454,7 +4415,7 @@ function EditSheet({
             <span className="text-[13px] text-[var(--pas-muted)]">Nomor HP</span>
             <input
               required
-              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+              className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
               placeholder="0812xxxxxxx"
               value={form.customer_phone}
               onChange={set("customer_phone")}
@@ -4602,7 +4563,7 @@ function EditSheet({
               <span className="text-[13px] text-[var(--pas-muted)]">Tanggal Order</span>
               <input
                 type="date"
-                className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+                className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
                 value={form.created_at}
                 onChange={set("created_at")}
               />
@@ -4611,7 +4572,7 @@ function EditSheet({
               <span className="text-[13px] text-[var(--pas-muted)]">Tanggal Deadline</span>
               <input
                 type="date"
-                className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+                className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
                 value={form.deadline}
                 onChange={set("deadline")}
               />
@@ -4804,7 +4765,7 @@ function AddForm({
         <span className="text-[13px] text-[var(--pas-muted)]">Nama Customer</span>
         <input
           required
-          className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+          className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
           placeholder="Nama"
           value={form.customer_name}
           onChange={set("customer_name")}
@@ -4814,7 +4775,7 @@ function AddForm({
         <span className="text-[13px] text-[var(--pas-muted)]">Nomor HP</span>
         <input
           required
-          className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+          className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
           placeholder="0812xxxxxxx"
           value={form.customer_phone}
           onChange={set("customer_phone")}
@@ -4986,7 +4947,7 @@ function AddForm({
           <span className="text-[13px] text-[var(--pas-muted)]">Tanggal Order</span>
           <input
             type="date"
-            className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+            className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
             value={form.created_at}
             onChange={set("created_at")}
           />
@@ -4995,7 +4956,7 @@ function AddForm({
           <span className="text-[13px] text-[var(--pas-muted)]">Tanggal Deadline</span>
           <input
             type="date"
-            className="pas-field w-full px-4 py-2.5 mt-1.5 text-[15px]"
+            className="pas-field w-full px-4 py-2.5 mt-1.5 text-[16px]"
             value={form.deadline}
             onChange={set("deadline")}
           />
