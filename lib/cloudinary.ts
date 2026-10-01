@@ -1,11 +1,13 @@
 /**
- * Cloudinary — upload gambar dari sisi browser memakai UNSIGNED upload preset
- * (env: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME + NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
- * keduanya memang aman dipublikasikan).
+ * Cloudinary — upload gambar dari sisi browser memakai preset SIGNED.
+ *
+ * Preset Cloudinary project ini bertipe signed, jadi browser tidak bisa
+ * mengunggah sendirian: tanda tangan (SHA-1 dari parameter + api_secret) diminta
+ * lebih dulu ke `POST /api/cloudinary/sign`, lalu ikut dikirim bersama berkas.
+ * Karena itu satu-satunya env yang perlu ada di bundle browser adalah cloud name.
  *
  * Berkas ini di-import komponen client, jadi JANGAN pernah menaruh API key/secret
- * di sini. Operasi yang butuh tanda tangan (hapus aset) ada di
- * lib/cloudinary-server.ts.
+ * di sini. Operasi yang butuh tanda tangan ada di lib/cloudinary-server.ts.
  */
 
 import {
@@ -169,12 +171,14 @@ export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 /** Nilai atribut `accept` untuk input file (harus sama dengan ALLOWED_IMAGE_TYPES). */
 export const IMAGE_ACCEPT = ALLOWED_IMAGE_TYPES.join(",");
 
-/** True kalau env Cloudinary tersedia (keduanya env publik). */
+/**
+ * True kalau Cloudinary siap dipakai dari sisi browser.
+ *
+ * Cukup cloud name: tanda tangan dan preset sekarang dibuat server, jadi tidak
+ * ada lagi env publik kedua yang harus ada supaya tombol upload muncul.
+ */
 export function isCloudinaryConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME &&
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-  );
+  return Boolean(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
 }
 
 /**
@@ -192,11 +196,43 @@ export function validateImageFile(file: File): string | null {
   return null;
 }
 
+/** Bentuk balasan `POST /api/cloudinary/sign`. */
+type CloudinarySignatureResponse = {
+  api_key: string;
+  timestamp: number;
+  signature: string;
+  folder: string;
+  upload_preset: string | null;
+};
+
 /**
- * Upload satu gambar ke Cloudinary (unsigned).
+ * Minta tanda tangan unggahan ke server.
  *
- * `folder` opsional — defaultnya CLOUDINARY_FOLDER. Preset `modigi` mengizinkan
- * parameter folder (sudah diuji), jadi tiap upload bisa dikelompokkan.
+ * Tanda tangan hanya bisa dibuat memakai api_secret, dan secret itu tidak boleh
+ * sampai ke browser — karena itulah langkah ini ada. Dipanggil setelah foto
+ * diperkecil supaya indikator upload tidak "diam" selama permintaan berlangsung.
+ */
+async function requestUploadSignature(
+  folder: string
+): Promise<CloudinarySignatureResponse> {
+  const res = await fetch("/api/cloudinary/sign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder }),
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data?.signature) {
+    throw new Error(data?.error || "Gagal menyiapkan upload. Coba lagi.");
+  }
+  return data as CloudinarySignatureResponse;
+}
+
+/**
+ * Upload satu gambar ke Cloudinary (preset signed).
+ *
+ * `folder` opsional — defaultnya CLOUDINARY_FOLDER. Nilainya ikut ditandatangani
+ * server, jadi apa pun yang dikirim ke sini harus dipakai apa adanya di form.
  *
  * Foto diperkecil dulu di browser (lihat downscaleImage) supaya yang dikirim —
  * dan yang tersimpan permanen — bukan berkas 4-6 MB dari kamera HP.
@@ -210,9 +246,8 @@ export async function uploadToCloudinary(
   params: { folder?: string } = {}
 ): Promise<{ url: string; public_id: string }> {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
-  if (!cloudName || !uploadPreset) {
+  if (!cloudName) {
     throw new Error("Cloudinary belum dikonfigurasi");
   }
 
@@ -223,16 +258,26 @@ export async function uploadToCloudinary(
   const jobId = beginUpload(file.name || "foto", file.size);
 
   try {
+    const folder = params.folder || CLOUDINARY_FOLDER;
     const upload = await downscaleImage(file);
 
     // Sejak titik ini ukurannya sudah pasti — inilah angka yang dikirim ke
     // Cloudinary, dan itulah yang ditampilkan ke operator.
     markUploadReady(jobId, upload.blob.size);
 
+    const signed = await requestUploadSignature(folder);
+
+    // Parameter di bawah harus persis sama dengan yang ditandatangani server —
+    // mengubah/menambah satu saja membuat Cloudinary menjawab "Invalid Signature".
     const formData = new FormData();
     formData.append("file", upload.blob, upload.filename);
-    formData.append("upload_preset", uploadPreset);
-    formData.append("folder", params.folder || CLOUDINARY_FOLDER);
+    formData.append("api_key", signed.api_key);
+    formData.append("timestamp", String(signed.timestamp));
+    formData.append("signature", signed.signature);
+    formData.append("folder", signed.folder);
+    if (signed.upload_preset) {
+      formData.append("upload_preset", signed.upload_preset);
+    }
 
     const data = await postToCloudinary(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,

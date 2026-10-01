@@ -16,7 +16,7 @@
 --     jalankan migrasi yang lebih baru (0004 ke atas). Lihat supabase/README.md.
 --
 -- Yang dibuang dari skema: seluruh modul landing page + katalog (13 tabel,
--- 3 enum, kolom `brand` yang tidak dipakai, bucket storage `products`). Menara
+-- 3 enum, kolom `brand` yang tidak dipakai, bucket storage `products`). Rabona
 -- fokus ke dashboard operasional: pesanan, maklon, dan tracking customer.
 --
 -- Yang TIDAK dibuat di sini dengan sengaja:

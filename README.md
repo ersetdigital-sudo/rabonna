@@ -107,7 +107,7 @@ Browser
         │
         ▼
 Next.js 15 (App Router) on Vercel
-  middleware.ts        session refresh, tags each request with its pathname
+  middleware.ts        tags each request with its pathname (dashboard guard)
   Server Components    read through the service client
   Route Handlers       getAdminDb()   auth check FIRST, then service client
                        tracking       phone match / signed token, then read

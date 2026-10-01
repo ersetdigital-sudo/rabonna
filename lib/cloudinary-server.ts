@@ -11,6 +11,16 @@
 import { createHash } from "crypto";
 import { CLOUDINARY_FOLDER, cloudinaryPublicId } from "./cloudinary";
 
+/** Parameter bertanda tangan yang dikirim browser ke Cloudinary. */
+export interface CloudinaryUploadSignature {
+  cloud_name: string;
+  api_key: string;
+  timestamp: number;
+  folder: string;
+  upload_preset: string | null;
+  signature: string;
+}
+
 /** True kalau kredensial admin Cloudinary lengkap. */
 export function cloudinaryAdminConfigured(): boolean {
   return Boolean(
@@ -30,6 +40,49 @@ function sign(params: Record<string, string>, apiSecret: string): string {
     .map((key) => `${key}=${params[key]}`)
     .join("&");
   return createHash("sha1").update(payload + apiSecret).digest("hex");
+}
+
+/**
+ * Parameter bertanda tangan untuk satu unggahan dari browser.
+ *
+ * Preset Cloudinary project ini bertipe SIGNED, jadi browser tidak bisa
+ * mengunggah sendirian: ia minta tanda tangan ke `POST /api/cloudinary/sign`
+ * lebih dulu, lalu mengirim `file` bersama parameter di bawah ini.
+ *
+ * Yang ditandatangani harus SAMA PERSIS dengan yang dikirim browser — Cloudinary
+ * menghitung ulang signature dari parameter yang diterima, jadi menambah atau
+ * mengubah satu parameter saja membuat unggahan ditolak "Invalid Signature".
+ *
+ * `api_key` memang ikut dikirim (bukan rahasia); `api_secret` tidak pernah
+ * keluar dari server. Mengembalikan `null` kalau kredensial belum lengkap.
+ */
+export function signCloudinaryUpload(
+  folder: string = CLOUDINARY_FOLDER
+): CloudinaryUploadSignature | null {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  if (!cloudName || !apiKey || !apiSecret) return null;
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const params: Record<string, string> = {
+    folder,
+    timestamp: String(timestamp),
+  };
+
+  // Preset juga ikut ditandatangani: kalau dikirim tanpa masuk signature,
+  // Cloudinary menolak permintaan bertanda tangan yang punya parameter ekstra.
+  const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
+  if (uploadPreset) params.upload_preset = uploadPreset;
+
+  return {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    timestamp,
+    folder,
+    upload_preset: uploadPreset ?? null,
+    signature: sign(params, apiSecret),
+  };
 }
 
 /**
