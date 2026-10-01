@@ -2575,7 +2575,7 @@ table.pas-tbl tbody tr:hover { background: #F7FAFF; }
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   padding: 6px 8px 26px; text-align: center;
 }
-.pas-brand-mark { width: 116px; height: 116px; display: grid; place-items: center; }
+.pas-brand-mark { width: 64px; height: 64px; display: grid; place-items: center; }
 .pas-brand-mark img {
   width: 100%; height: 100%; object-fit: contain; display: block;
   filter: drop-shadow(0 8px 22px rgba(201,151,31,.45));
