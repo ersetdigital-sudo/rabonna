@@ -130,6 +130,19 @@ function stepHighlight(status: string, hasTracking: boolean): string {
 }
 
 /**
+ * Lebar gambar pratinjau desain di kartu tahap, sekaligus ukuran pertama yang
+ * dipakai layar zoom.
+ *
+ * Angkanya dipakai di dua tempat dengan sengaja: URL Cloudinary yang identik
+ * membuat layar zoom memakai gambar yang SUDAH ada di cache browser, jadi
+ * gambarnya tampil seketika tanpa unduhan baru.
+ */
+const THUMB_IMAGE_WIDTH = 640;
+
+/** Lebar gambar di layar zoom — versi tajam, diunduh di belakang layar. */
+const LIGHTBOX_IMAGE_WIDTH = 1600;
+
+/**
  * Halaman status pesanan (client component).
  *
  * Sengaja TIDAK ada tombol "Hubungi CS"/WhatsApp di halaman ini: fungsinya
@@ -177,6 +190,11 @@ export default function StatusClient({
   );
   const pctRef = useRef<HTMLDivElement>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  // Gambar yang sedang ditampilkan layar zoom: versi thumbnail (sudah ada di
+  // cache) lebih dulu, lalu naik ke versi tajam begitu unduhannya selesai.
+  // Pasangan { url, src } disimpan bersama supaya tidak pernah ada satu frame
+  // yang menampilkan foto dari gambar yang dibuka sebelumnya.
+  const [lbSrc, setLbSrc] = useState<{ url: string; src: string } | null>(null);
   const [lbOpen, setLbOpen] = useState(false);
   const [lbScale, setLbScale] = useState(1);
   const [lbOffset, setLbOffset] = useState({ x: 0, y: 0 });
@@ -292,6 +310,24 @@ export default function StatusClient({
     setLbOpen(true);
     setLbScale(1);
     setLbOffset({ x: 0, y: 0 });
+
+    // Layar zoom dulu selalu meminta gambar 1600px yang belum pernah diunduh,
+    // jadi yang terlihat lebih dulu adalah layar kosong selama unduhan — di
+    // jaringan seluler itu berasa lama. Sekarang versi thumbnail dipasang
+    // lebih dulu (URL-nya sama persis dengan yang sudah tampil di kartu tahap,
+    // jadi 0 byte unduhan dan muncul seketika), sementara versi tajamnya
+    // diunduh di belakang layar. `src` ditukar setelah gambarnya benar-benar
+    // siap, jadi tidak ada kedipan kosong di tengah jalan.
+    setLbSrc({ url: lightboxUrl, src: optimizeImageUrl(lightboxUrl, THUMB_IMAGE_WIDTH) });
+
+    const sharpUrl = optimizeImageUrl(lightboxUrl, LIGHTBOX_IMAGE_WIDTH);
+    const preload = new Image();
+    preload.onload = () => setLbSrc({ url: lightboxUrl, src: sharpUrl });
+    preload.src = sharpUrl;
+
+    return () => {
+      preload.onload = null;
+    };
   }, [lightboxUrl]);
 
   useEffect(() => {
@@ -685,7 +721,7 @@ export default function StatusClient({
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                  src={optimizeImageUrl(url, 640)}
+                                  src={optimizeImageUrl(url, THUMB_IMAGE_WIDTH)}
                                   alt={`Preview desain pesanan ${di + 1}`}
                                   loading="lazy"
                                   className="block w-full max-w-[280px] max-h-[320px] object-contain"
@@ -922,7 +958,11 @@ export default function StatusClient({
               </button>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={optimizeImageUrl(lightboxUrl, 1600)}
+                src={
+                  lbSrc?.url === lightboxUrl
+                    ? lbSrc.src
+                    : optimizeImageUrl(lightboxUrl, THUMB_IMAGE_WIDTH)
+                }
                 alt="Preview desain diperbesar"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={(e) => {
