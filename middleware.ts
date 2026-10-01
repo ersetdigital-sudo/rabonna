@@ -13,8 +13,8 @@ import { NextResponse, type NextRequest } from "next/server";
  *   1. Menitipkan pathname ke header `x-pathname`, yang dipakai
  *      app/pesanan/layout.tsx untuk tahu halaman mana yang sedang dibuka
  *      (`/pesanan/login` tidak boleh kena cek cookie).
- *   2. Mengalihkan crawler preview link ke app/link-preview — lihat
- *      PREVIEW_CRAWLER di bawah.
+ *   2. Mengalihkan crawler preview link ke app/link-preview — lihat komentar
+ *      di bawah.
  *
  * DULU berkas ini juga menyegarkan sesi Supabase lewat `supabase.auth.getUser()`
  * untuk SETIAP request. Dua alasan kenapa itu dihapus:
@@ -32,21 +32,69 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 
 /**
- * User-Agent crawler yang menyusun preview link di aplikasi chat.
+ * Nama crawler preview link yang sudah dikenal.
  *
- * WhatsApp menandai request-nya dengan `WhatsApp/2.x.x.x A|I|N` (A=Android,
- * I=iOS, N=web). Nama lain ikut dimasukkan karena polanya sama: semuanya
- * mengambil gambar dari halaman dan menampilkannya di chat.
+ * WhatsApp menandai request-nya `WhatsApp/2.x.x.x A|I|N` (A=Android, I=iOS,
+ * N=web), tapi Meta juga punya crawler lain — `meta-externalagent` di antaranya —
+ * dan crawler baru akan terus muncul.
  */
-const PREVIEW_CRAWLER =
-  /WhatsApp|facebookexternalhit|Facebot|TelegramBot|Twitterbot|Slackbot|Discordbot|LinkedInBot|Pinterest|Embedly|SkypeUriPreview/i;
+const KNOWN_CRAWLER =
+  /whatsapp|facebookexternalhit|facebot|meta-external\w*|telegrambot|twitterbot|slackbot|discordbot|linkedinbot|pinterest|embedly|skypeuripreview|discord|line-poker|kakaotalk/i;
+
+/**
+ * True kalau request ini datang dari crawler preview link, bukan dari orang.
+ *
+ * Dua lapis, dan lapis kedua itu yang penting:
+ *
+ *   1. Nama yang dikenal di atas.
+ *   2. Apa pun yang TIDAK mengaku sebagai browser. Browser sungguhan selalu
+ *      mengirim `Mozilla/…` di User-Agent-nya, sedangkan bot hampir tidak
+ *      pernah. Daftar nama saja selalu ketinggalan — WhatsApp pernah berpindah
+ *      User-Agent, dan waktu itu preview-nya sempat kembali menampilkan logo
+ *      besar karena request-nya lolos sebagai "browser biasa".
+ */
+function isLinkPreviewCrawler(request: NextRequest): boolean {
+  const userAgent = request.headers.get("user-agent") ?? "";
+
+  // Tanpa User-Agent sama sekali: tidak ada browser yang begitu.
+  if (!userAgent) return true;
+  if (KNOWN_CRAWLER.test(userAgent)) return true;
+
+  return !/mozilla/i.test(userAgent);
+}
+
+/**
+ * Halaman yang link-nya dikirim ke customer lewat WhatsApp, dan karenanya
+ * preview-nya ikut dibentuk oleh crawler di aplikasi chat.
+ */
+function isCustomerSharedPage(pathname: string): boolean {
+  return (
+    pathname === "/status" ||
+    pathname.startsWith("/status/") ||
+    pathname === "/track" ||
+    pathname.startsWith("/track/")
+  );
+}
 
 export function middleware(request: NextRequest) {
-  // Crawler preview dapat dokumen tanpa gambar sama sekali (app/link-preview),
-  // supaya chat customer tidak lagi menampilkan logo raksasa. Halaman ini tidak
-  // punya og:image, jadi kalau crawler dibiarkan membaca halaman normal,
-  // WhatsApp jatuh ke ikon situs dan memperbesarnya jadi thumbnail.
-  if (PREVIEW_CRAWLER.test(request.headers.get("user-agent") ?? "")) {
+  const { pathname } = request.nextUrl;
+
+  // Crawler preview dapat dokumen TANPA GAMBAR SAMA SEKALI (app/link-preview),
+  // supaya chat customer tidak lagi menampilkan logo raksasa.
+  //
+  // Halaman /status tidak punya og:image, dan WhatsApp memang dirancang
+  // "mencari markah lain" saat og:image kosong — jadi ia mengambil ikon situs
+  // dan memperbesarnya jadi thumbnail. Menghapus ikon satu per satu tidak
+  // menyelesaikan masalah: WhatsApp jatuh ke markah berikutnya. Memberi crawler
+  // halaman yang memang tidak punya gambar apa pun menutup semua celah itu.
+  if (isCustomerSharedPage(pathname) && isLinkPreviewCrawler(request)) {
+    // User-Agent sengaja dicatat: kalau preview di WhatsApp masih salah, baris
+    // ini di Vercel Logs menunjukkan crawler mana yang datang dan apa yang
+    // dimintanya, tanpa perlu menebak lagi.
+    console.log(
+      `[link-preview] ${pathname} | ua=${(request.headers.get("user-agent") ?? "").slice(0, 140)}`
+    );
+
     const preview = request.nextUrl.clone();
     preview.pathname = "/link-preview";
     preview.search = "";
@@ -58,7 +106,7 @@ export function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
-  response.headers.set("x-pathname", request.nextUrl.pathname);
+  response.headers.set("x-pathname", pathname);
   return response;
 }
 
