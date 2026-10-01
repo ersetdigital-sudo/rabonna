@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
-import { IMAGE_ACCEPT, optimizeImageUrl, uploadToCloudinary } from "@/lib/cloudinary";
+import {
+  IMAGE_ACCEPT,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_MB,
+  optimizeImageUrl,
+  uploadToCloudinary,
+} from "@/lib/cloudinary";
 import { MAKLON_STAGES, maklonProgress } from "@/lib/maklon-status";
 import {
   DEFAULT_PRODUCTS,
@@ -1117,8 +1123,8 @@ function DetailSheet({
       setError("File harus gambar");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Maksimal 10MB");
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError(`Maksimal ${MAX_IMAGE_MB}MB`);
       return;
     }
     setUploadingWo(true);

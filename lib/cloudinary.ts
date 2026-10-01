@@ -160,9 +160,26 @@ async function downscaleImage(file: File): Promise<{ blob: Blob; filename: strin
 /** Folder induk semua aset gambar Rabona di Cloudinary. */
 export const CLOUDINARY_FOLDER = "rabonna/desain";
 
-/** Batas ukuran per gambar. Cloudinary gratis dihitung dari kredit, jadi
- *  foto 5 MB dari kamera HP sebaiknya ditolak di sini, bukan setelah terupload. */
-export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+/**
+ * Batas ukuran berkas yang DITERIMA dari operator.
+ *
+ * Foto kamera HP sampai 10 MB tetap boleh dipilih: berkasnya diperkecil dulu
+ * di browser (lihat downscaleImage) sebelum dikirim, jadi yang sampai ke
+ * Cloudinary cuma beberapa ratus KB — bukan 10 MB. Batas ini hanya menolak
+ * berkas yang jelas kebesaran, yang memprosesnya di browser sudah berat dan
+ * lambat sendiri.
+ */
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Batas yang sama dalam MB, untuk pesan yang dibaca operator.
+ *
+ * Dipakai bersama-sama dengan MAX_IMAGE_BYTES supaya teks di dashboard tidak
+ * pernah lagi menyebut angka yang berbeda dari yang benar-benar dicek — dulu
+ * dashboard bilang "Maksimal 10MB" sementara fungsi validasi masih menolak
+ * di 2 MB, dan baru ketahuan setelah operator mencoba upload.
+ */
+export const MAX_IMAGE_MB = MAX_IMAGE_BYTES / (1024 * 1024);
 
 /** Format yang diterima. HEIC sengaja tidak ikut — Cloudinary bisa mengonversinya,
  *  tapi browser tidak bisa menampilkan hasilnya sebagai preview lokal. */
@@ -191,7 +208,7 @@ export function validateImageFile(file: File): string | null {
   }
   if (file.size > MAX_IMAGE_BYTES) {
     const mb = (file.size / 1024 / 1024).toFixed(1);
-    return `Ukuran ${mb} MB melebihi batas 2 MB. Kecilkan dulu gambarnya.`;
+    return `Ukuran ${mb} MB melebihi batas ${MAX_IMAGE_MB} MB. Kecilkan dulu gambarnya.`;
   }
   return null;
 }

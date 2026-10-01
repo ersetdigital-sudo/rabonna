@@ -3,7 +3,13 @@
 import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IMAGE_ACCEPT, optimizeImageUrl, uploadToCloudinary } from "@/lib/cloudinary";
+import {
+  IMAGE_ACCEPT,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_MB,
+  optimizeImageUrl,
+  uploadToCloudinary,
+} from "@/lib/cloudinary";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_LIST, getProgress } from "@/lib/types";
 import {
   dateKeyID,
@@ -3776,7 +3782,7 @@ function DetailSheet({
 
   const handleWoUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) { setKirimError("File harus gambar"); return; }
-    if (file.size > 10 * 1024 * 1024) { setKirimError("Maksimal 10MB"); return; }
+    if (file.size > MAX_IMAGE_BYTES) { setKirimError(`Maksimal ${MAX_IMAGE_MB}MB`); return; }
     setUploadingWo(true);
     setKirimError("");
     try {
