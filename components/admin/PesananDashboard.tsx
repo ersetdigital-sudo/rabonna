@@ -1307,42 +1307,17 @@ function ViewPesanan({
               className="pas-bento-card cursor-pointer"
               onClick={() => openDetail(o.id)}
             >
-              {/* Action buttons - pojok kanan atas */}
-              <div className="absolute top-5 right-5 flex items-center gap-1">
-                  <button
-                    className="text-[var(--pas-muted)] hover:text-blue-400 transition p-1.5 rounded-lg hover:bg-blue-400/10"
-                    title="Edit"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openEdit(o.id);
-                    }}
-                  >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                </button>
-                <button
-                  className="text-[var(--pas-muted)] hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-400/10"
-                  title="Hapus"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setConfirmDelete(o);
-                  }}
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                  </svg>
-                </button>
-              </div>
-
-              {/* Baris 1: Nomor pesanan + badge status */}
-              <div className="flex items-center justify-between pr-10">
-                <p className="font-bold text-[16px] pas-num">{o.id}</p>
-                <span className="flex items-center gap-1.5">
-                  <span className={`pas-pill ${st}`}>{FILTER_LABEL[st]}</span>
+              {/* Baris 1: nomor pesanan + badge status.
+                  Badge dijaga utuh satu baris (nowrap) dan TIDAK lagi ditumpuk
+                  tombol aksi: dulu tombolnya absolute di pojok kanan atas,
+                  sehingga badge "Baru" tertimpa ikon edit. Aksi pindah ke
+                  barisnya sendiri di bawah kartu. */}
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-bold text-[16px] pas-num min-w-0 truncate">{o.id}</p>
+                <span className="flex items-center gap-1.5 shrink-0">
+                  <span className={`pas-pill ${st} whitespace-nowrap`}>{FILTER_LABEL[st]}</span>
                   {dlNote && (
-                    <span className={`pas-pill ${dlNote.cls}`}>{dlNote.text}</span>
+                    <span className={`pas-pill ${dlNote.cls} whitespace-nowrap`}>{dlNote.text}</span>
                   )}
                 </span>
               </div>
@@ -1398,6 +1373,38 @@ function ViewPesanan({
                 ) : (
                   <p className="text-[12px] text-[var(--pas-muted)]">Deadline: -</p>
                 )}
+              </div>
+
+              {/* Aksi kartu — baris sendiri, tidak menimpa badge. Target
+                  sentuh 40px supaya nyaman di layar kecil. */}
+              <div className="mt-3 flex items-center justify-end gap-1">
+                <button
+                  className="w-10 h-10 grid place-items-center rounded-lg text-[var(--pas-muted)] hover:text-blue-400 hover:bg-blue-400/10 transition"
+                  title="Edit"
+                  aria-label="Edit pesanan"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openEdit(o.id);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button
+                  className="w-10 h-10 grid place-items-center rounded-lg text-[var(--pas-muted)] hover:text-red-400 hover:bg-red-400/10 transition"
+                  title="Hapus"
+                  aria-label="Hapus pesanan"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDelete(o);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                  </svg>
+                </button>
               </div>
             </div>
           );
@@ -2957,23 +2964,25 @@ function ViewSetting({
                 />
                 <div className="flex items-center gap-0.5 shrink-0">
                   <button
-                    className="pas-btn-ghost px-1.5 py-1 text-[13px] disabled:opacity-30"
+                    className="pas-btn-ghost w-9 h-9 grid place-items-center text-[14px] disabled:opacity-30"
                     disabled={i === 0}
                     onClick={() => moveStep(i, -1)}
                     title="Geser ke atas"
+                    aria-label="Geser tahap ke atas"
                   >
                     ^
                   </button>
                   <button
-                    className="pas-btn-ghost px-1.5 py-1 text-[13px] disabled:opacity-30"
+                    className="pas-btn-ghost w-9 h-9 grid place-items-center text-[14px] disabled:opacity-30"
                     disabled={i === editSteps.length - 1}
                     onClick={() => moveStep(i, 1)}
                     title="Geser ke bawah"
+                    aria-label="Geser tahap ke bawah"
                   >
                     v
                   </button>
                   <button
-                    className="pas-btn-ghost px-1.5 py-1 text-[13px] disabled:opacity-30"
+                    className="pas-btn-ghost w-9 h-9 grid place-items-center text-[14px] disabled:opacity-30"
                     disabled
                     title="Jumlah tahap dikunci. Hubungi support untuk mengubahnya."
                   >
@@ -3004,15 +3013,15 @@ function ViewSetting({
 
       {/* Notifikasi WhatsApp (Fonnte) */}
       <div className="pas-card p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <p className="font-semibold text-[15px]">Notifikasi WhatsApp (Fonnte)</p>
             <p className="text-[12.5px] text-[var(--pas-muted)] mt-1">
               Terkirim otomatis ke customer saat tahap produksi diubah. Token disimpan terenkripsi (AES-256-GCM).
             </p>
           </div>
           <span
-            className={`pas-pill shrink-0 ${fonnteHasToken ? "produksi" : "selesai"}`}
+            className={`pas-pill self-start shrink-0 whitespace-nowrap sm:self-auto ${fonnteHasToken ? "produksi" : "selesai"}`}
           >
             {fonnteHasToken
               ? `Tersimpan ----${fonnteLast4 ?? ""}`
@@ -3114,7 +3123,9 @@ function ViewSetting({
           </label>
           <label className="block lg:col-span-2">
             <span className="text-[13px] text-[var(--pas-muted)]">Nomor HP Admin</span>
-            <div className="grid grid-cols-3 gap-3 mt-1.5">
+            {/* Di HP, 3 kolom bikin tiap input cuma ~90px — nomor HP jadi
+                terpotong. Satu kolom dulu, baru 3 kolom dari sm ke atas. */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1.5">
               <input
                 type="text"
                 className="pas-field w-full px-4 py-2.5 text-[15px] pas-num"
@@ -3141,16 +3152,16 @@ function ViewSetting({
           </label>
         </div>
 
-        <div className="flex gap-3 mt-4">
+        <div className="flex flex-col gap-3 mt-4 sm:flex-row">
           <button
-            className="pas-btn-accent px-6 py-2.5 text-[13px]"
+            className="pas-btn-accent w-full px-6 py-2.5 text-[13px] sm:w-auto"
             disabled={savingDeadline}
             onClick={saveDeadlineSettings}
           >
             {savingDeadline ? "Menyimpan..." : "Simpan Pengaturan"}
           </button>
           <button
-            className="pas-btn-ghost px-6 py-2.5 text-[13px]"
+            className="pas-btn-ghost w-full px-6 py-2.5 text-[13px] sm:w-auto"
             disabled={!deadlineEnabled || savingDeadline}
             onClick={testDeadlineNotif}
           >
@@ -3233,6 +3244,30 @@ function ViewSetting({
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    VIEW: NOTIFIKASI
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/** Chip status pengiriman — dipakai tabel (desktop) dan kartu (mobile). */
+function NotifStatusChip({ status }: { status: string }) {
+  const ok = status === "sent";
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-[12px] whitespace-nowrap"
+      style={{ color: ok ? "var(--accent)" : "#12305B" }}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        {ok ? (
+          <path d="M20 6L9 17l-5-5" />
+        ) : (
+          <>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </>
+        )}
+      </svg>
+      {ok ? "Sukses" : "Gagal"}
+    </span>
+  );
+}
+
 function ViewNotif({ showToast, orders }: { showToast: (msg: string) => void; orders: OrderData[] }) {
   const [enabled, setEnabled] = useState(false);
   const [time, setTime] = useState("08:00");
@@ -3639,47 +3674,75 @@ function ViewNotif({ showToast, orders }: { showToast: (msg: string) => void; or
               <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>Setelah notifikasi pertama terkirim, waktu, penerima, dan statusnya akan tercatat di sini.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b" style={{ borderColor: "var(--line)" }}>
-                    <th className="pb-2 n-eyebrow">Status</th>
-                    <th className="pb-2 n-eyebrow">Waktu</th>
-                    <th className="pb-2 n-eyebrow">Order</th>
-                    <th className="pb-2 n-eyebrow">Tipe</th>
-                    <th className="pb-2 n-eyebrow">HP</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {logs.map((log) => (
-                    <tr key={log.id} className="border-b transition-colors" style={{ borderColor: "var(--line-2)" }}>
-                      <td className="py-2.5">
-                        {log.status === "sent" ? (
-                          <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: "var(--accent)" }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                            Sukses
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: "#12305B" }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
-                            Gagal
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2.5 text-[13px]" style={{ color: "var(--ink-2)" }}>
-                        {formatDayMonthID(log.created_at)}{" "}
-                        {formatTimeID(log.created_at)}
-                      </td>
-                      <td className="py-2.5 text-[13px] font-semibold" style={{ color: "var(--ink)", fontFamily: 'var(--font-geist-mono),monospace' }}>{log.order_number || "-"}</td>
-                      <td className="py-2.5 text-[12px]" style={{ color: "var(--ink-soft)" }}>
+            <>
+              {/* Mobile: kartu — tabel 5 kolom tidak muat di layar sempit. */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {logs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="rounded-xl p-3.5"
+                    style={{ background: "var(--cream-2)", border: "1px solid var(--line-2)" }}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <NotifStatusChip status={log.status} />
+                      <span className="text-[12px] whitespace-nowrap" style={{ color: "var(--ink-soft)" }}>
+                        {formatDayMonthID(log.created_at)} {formatTimeID(log.created_at)}
+                      </span>
+                    </div>
+                    <div className="mt-2.5 flex items-center justify-between gap-3">
+                      <span
+                        className="min-w-0 truncate text-[13px] font-semibold"
+                        style={{ color: "var(--ink)", fontFamily: 'var(--font-geist-mono),monospace' }}
+                      >
+                        {log.order_number || "-"}
+                      </span>
+                      <span className="shrink-0 text-[12px]" style={{ color: "var(--ink-soft)" }}>
                         {log.diff_days === 0 ? "H-0" : `H-${log.diff_days}`}
-                      </td>
-                      <td className="py-2.5 text-[12px]" style={{ color: "var(--ink-soft)", fontFamily: 'var(--font-geist-mono),monospace' }}>{log.phone}</td>
+                      </span>
+                    </div>
+                    <p
+                      className="mt-1.5 text-[12px]"
+                      style={{ color: "var(--ink-soft)", fontFamily: 'var(--font-geist-mono),monospace' }}
+                    >
+                      {log.phone}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: tabel */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b" style={{ borderColor: "var(--line)" }}>
+                      <th className="pb-2 n-eyebrow">Status</th>
+                      <th className="pb-2 n-eyebrow">Waktu</th>
+                      <th className="pb-2 n-eyebrow">Order</th>
+                      <th className="pb-2 n-eyebrow">Tipe</th>
+                      <th className="pb-2 n-eyebrow">HP</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {logs.map((log) => (
+                      <tr key={log.id} className="border-b transition-colors" style={{ borderColor: "var(--line-2)" }}>
+                        <td className="py-2.5">
+                          <NotifStatusChip status={log.status} />
+                        </td>
+                        <td className="py-2.5 text-[13px]" style={{ color: "var(--ink-2)" }}>
+                          {formatDayMonthID(log.created_at)}{" "}
+                          {formatTimeID(log.created_at)}
+                        </td>
+                        <td className="py-2.5 text-[13px] font-semibold" style={{ color: "var(--ink)", fontFamily: 'var(--font-geist-mono),monospace' }}>{log.order_number || "-"}</td>
+                        <td className="py-2.5 text-[12px]" style={{ color: "var(--ink-soft)" }}>
+                          {log.diff_days === 0 ? "H-0" : `H-${log.diff_days}`}
+                        </td>
+                        <td className="py-2.5 text-[12px]" style={{ color: "var(--ink-soft)", fontFamily: 'var(--font-geist-mono),monospace' }}>{log.phone}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </section>
 

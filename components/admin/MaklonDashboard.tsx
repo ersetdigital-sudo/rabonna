@@ -535,36 +535,12 @@ export default function MaklonDashboard({
                   const stageName = steps[o.current_step - 1]?.name || `Tahap ${o.current_step}`;
                   return (
                     <div key={o.id} className="pas-bento-card cursor-pointer" onClick={() => setOpenId(o.id)}>
-                      <div className="flex items-center justify-between pr-2">
-                        <p className="font-bold text-[16px] pas-num">{o.id}</p>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            className="text-[var(--pas-muted)] hover:text-blue-400 transition p-1.5 rounded-lg hover:bg-blue-400/10"
-                            title="Edit maklon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditId(o.id);
-                            }}
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1-1-4 9.5-9.5z"/>
-                            </svg>
-                          </button>
-                          <button
-                            className="text-[var(--pas-muted)] hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-400/10"
-                            title="Hapus maklon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteTarget(o);
-                            }}
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                            </svg>
-                          </button>
-                          <span className={`pas-pill ${st}`}>{FILTER_LABEL[st]}</span>
-                        </div>
+                      {/* Baris 1: nomor + badge status (badge dijaga utuh satu
+                          baris). Tombol aksi pindah ke baris sendiri di bawah
+                          kartu supaya tidak berdesakan dengan badge. */}
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-bold text-[16px] pas-num min-w-0 truncate">{o.id}</p>
+                        <span className={`pas-pill ${st} shrink-0 whitespace-nowrap`}>{FILTER_LABEL[st]}</span>
                       </div>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-3 min-w-0">
@@ -588,6 +564,37 @@ export default function MaklonDashboard({
                       <div className="flex items-center justify-between">
                         <p className="text-[12px] text-[var(--pas-muted)]">Order: {formatDate(o.created_at)}</p>
                         <p className="text-[12px] text-[var(--pas-muted)]">Deadline: {o.deadline ? formatDate(o.deadline) : "-"}</p>
+                      </div>
+
+                      {/* Aksi kartu — baris sendiri, target sentuh 40px. */}
+                      <div className="mt-3 flex items-center justify-end gap-1">
+                        <button
+                          className="w-10 h-10 grid place-items-center rounded-lg text-[var(--pas-muted)] hover:text-blue-400 hover:bg-blue-400/10 transition"
+                          title="Edit maklon"
+                          aria-label="Edit maklon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditId(o.id);
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1-1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button
+                          className="w-10 h-10 grid place-items-center rounded-lg text-[var(--pas-muted)] hover:text-red-400 hover:bg-red-400/10 transition"
+                          title="Hapus maklon"
+                          aria-label="Hapus maklon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTarget(o);
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   );
