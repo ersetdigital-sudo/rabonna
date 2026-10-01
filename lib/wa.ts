@@ -78,7 +78,7 @@ export function waMeUrl(phone: string, text?: string): string {
  * footer tidak bisa lagi tertinggal saat nomor di menu Pengaturan diganti
  * (dulu footer menulis "WhatsApp: 0811-5491-117" sebagai teks mati).
  *
- *   628115491117 → 0811-5491-117
+ *   628117777403 → 0811-7777-403
  *   085194154165 → 0851-9415-4165
  */
 export function formatWhatsAppDisplay(phone: string): string {

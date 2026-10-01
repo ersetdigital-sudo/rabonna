@@ -16,7 +16,10 @@ import type { Brand } from "@/lib/types";
  * normal tetap dari tabel `brand` (menu Pengaturan admin) lewat `getBrand()
  * di lib/queries.ts, jadi mengganti nomor tidak perlu deploy.
  */
-export const WA_NUMBER = "628115491117";
+// Cadangan saja: sumber sebenarnya adalah kolom `brand.whatsapp_number`, yang
+// diubah operator dari menu Pengaturan → Profil Toko. Nilai ini hanya dipakai
+// kalau database tidak terjangkau (lihat getBrand di lib/queries.ts).
+export const WA_NUMBER = "08117777403";
 
 /**
  * Jam operasional cadangan untuk halaman publik (home & tracking).
